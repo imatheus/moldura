@@ -68,7 +68,7 @@
         }
 
         .whatsapp-btn:hover {
-            background:  #96DC03;
+            background: #96DC03;
         }
 
         .whatsapp-btn i {
@@ -89,7 +89,7 @@
         }
 
         .canvas-container {
-            margin-bottom: 10%;
+            margin-bottom: 2%;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -137,13 +137,13 @@
         }
 
         .section-title {
-            font-size: 18px;
-            font-weight: bold;
+            color: #0044a8;
+            font-size: 19px;
+            font-weight: 600;
             margin-bottom: 10px;
             text-align: center;
         }
 
-        /* Estilo para o menu hambúrguer */
         .menu-icon {
             margin-left: 10px;
             display: none;
@@ -152,7 +152,6 @@
             cursor: pointer;
         }
 
-        /* Estilo do menu no mobile */
         @media (max-width: 768px) {
             .menu-icon {
                 display: block;
@@ -228,16 +227,15 @@
         <span class="menu-icon" onclick="toggleMenu()">&#9776;</span>
     </header>
 
-    <label for="uploadImage" class="upload-label">Importar foto da galeria</label>
-    <input type="file" id="uploadImage" accept="image/*" multiple />
-
     <div id="statusMessage"></div>
     <div id="container">
         <div class="canvas-container">
-            <div class="section-title">Para Perfil</div>
+            <div class="section-title">Mude sua foto de perfil e apoie nossa campanha!</div>
             <!-- Os canvas e botões para perfil serão adicionados aqui -->
         </div>
     </div>
+    <label for="uploadImage" class="upload-label">Importar foto da galeria</label>
+    <input type="file" id="uploadImage" accept="image/*" multiple />
 
     <!-- Inclua a biblioteca JSZip -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -255,8 +253,7 @@
             { src: '/m3.png', width: 320, height: 320, type: 'profile' },
             { src: '/m4.png', width: 320, height: 320, type: 'profile' },
             { src: '/m5.png', width: 320, height: 320, type: 'profile' },
-            { src: '/m6.png', width: 320, height: 320, type: 'profile' },
-
+            { src: '/m6.png', width: 320, height: 320, type: 'profile' }
         ];
 
         const container = document.getElementById('container');
@@ -269,22 +266,22 @@
                 const ctx = canvas.getContext('2d');
                 const watermark = new Image();
                 watermark.src = frame.src;
-                
+
                 watermark.onload = function () {
                     canvas.width = frame.width;
                     canvas.height = frame.height;
+
+                    let scale = Math.max(canvas.width / image.width, canvas.height / image.height);
+                    let x = (canvas.width - image.width * scale) / 2;
+                    let y = (canvas.height - image.height * scale) / 2;
+
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                    let scale = 1 * Math.max(canvas.width / image.width, canvas.height / image.height);
-                    let x = (canvas.width / 2) - (image.width / 2) * scale;
-                    let y = (canvas.height / 2) - (image.height / 2) * scale;
-
                     ctx.drawImage(image, x, y, image.width * scale, image.height * scale);
                     ctx.drawImage(watermark, 0, 0, canvas.width, canvas.height);
 
                     canvas.toBlob((blob) => {
                         resolve({ blob, index: frames.indexOf(frame), width: frame.width, height: frame.height, type: frame.type });
-                    }, 'image/jpeg');
+                    }, 'image/png'); // Usar PNG para melhor qualidade
                 };
             });
         }
@@ -314,12 +311,12 @@
         function renderPreviews() {
             container.innerHTML = `
                 <div class="canvas-container">
-                    <div class="section-title">Para Perfil</div>
+                    <div class="section-title">Baixe e adicione nas redes sociais 💙</div>
                 </div>
             `;
 
             const profileContainer = container.querySelector('.canvas-container');
-            
+
             images.forEach((image, imageIndex) => {
                 frames.forEach((frame) => {
                     if (frame.type === 'profile') {
@@ -344,8 +341,8 @@
                                 downloadBtn.textContent = 'Baixar Imagem';
                                 downloadBtn.onclick = function () {
                                     const link = document.createElement('a');
-                                    link.href = canvas.toDataURL('image/jpeg');
-                                    link.download = `imagem_perfil_${imageIndex + 1}_${width}x${height}.jpg`;
+                                    link.href = canvas.toDataURL('image/png'); // Usar PNG para melhor qualidade
+                                    link.download = `imagem_perfil_${imageIndex + 1}_${width}x${height}.png`;
                                     document.body.appendChild(link);
                                     link.click();
                                     document.body.removeChild(link);
