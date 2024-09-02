@@ -250,8 +250,13 @@
         }
 
         const frames = [
-            { src: '/moldura4.png', width: 320, height: 320, type: 'profile' },
-            { src: '/moldura4.png', width: 320, height: 320, type: 'profile' }
+            { src: '/m1.png', width: 320, height: 320, type: 'profile' },
+            { src: '/m2.png', width: 320, height: 320, type: 'profile' },
+            { src: '/m3.png', width: 320, height: 320, type: 'profile' },
+            { src: '/m4.png', width: 320, height: 320, type: 'profile' },
+            { src: '/m5.png', width: 320, height: 320, type: 'profile' },
+            { src: '/m6.png', width: 320, height: 320, type: 'profile' },
+
         ];
 
         const container = document.getElementById('container');
@@ -270,7 +275,7 @@
                     canvas.height = frame.height;
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                    let scale = 0.9 * Math.max(canvas.width / image.width, canvas.height / image.height);
+                    let scale = 1 * Math.max(canvas.width / image.width, canvas.height / image.height);
                     let x = (canvas.width / 2) - (image.width / 2) * scale;
                     let y = (canvas.height / 2) - (image.height / 2) * scale;
 
