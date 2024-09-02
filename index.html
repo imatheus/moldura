@@ -37,10 +37,18 @@
 
         canvas {
             border-radius: 40px;
-
             border: 1px solid #ccc;
+        }
+
+        .story-canvas {
             width: 270px;  /* Mantém a proporção de 1080x1920 para exibição */
             height: 480px;
+        }
+
+        .profile-canvas {
+            border-radius: 1240px;
+            width: 160px;  /* Mantém a proporção de 320x320 para exibição */
+            height: 160px;
         }
 
         button {
@@ -76,27 +84,28 @@
 
     <script>
         const frames = [
-            '/moldura1.png',
-            '/moldura2.png',
-            '/moldura3.png'
+            { src: '/moldura1.png', width: 1080, height: 1920, type: 'story' },
+            { src: '/moldura2.png', width: 1080, height: 1920, type: 'story' },
+            { src: '/moldura3.png', width: 1080, height: 1920, type: 'story' },
+            { src: '/moldura4.png', width: 320, height: 320, type: 'profile' } // Moldura 4 com resolução 320x320
         ];
 
         const container = document.getElementById('container');
         let image = new Image();
 
-        function createImagePromise(frameSrc) {
+        function createImagePromise(frame) {
             return new Promise((resolve) => {
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 const watermark = new Image();
-                watermark.src = frameSrc;
+                watermark.src = frame.src;
                 
                 watermark.onload = function () {
-                    canvas.width = 1080;
-                    canvas.height = 1920;
+                    canvas.width = frame.width;
+                    canvas.height = frame.height;
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                    // Mantém a imagem preenchendo completamente o canvas
+                    // Ajuste a escala para a moldura correta
                     const scale = Math.max(canvas.width / image.width, canvas.height / image.height);
                     const x = (canvas.width / 2) - (image.width / 2) * scale;
                     const y = (canvas.height / 2) - (image.height / 2) * scale;
@@ -105,7 +114,7 @@
                     ctx.drawImage(watermark, 0, 0, canvas.width, canvas.height);
 
                     canvas.toBlob((blob) => {
-                        resolve({ blob, index: frames.indexOf(frameSrc) });
+                        resolve({ blob, index: frames.indexOf(frame), width: frame.width, height: frame.height, type: frame.type });
                     }, 'image/jpeg');
                 };
             });
@@ -119,19 +128,22 @@
             reader.onload = function (e) {
                 image.onload = function () {
                     container.innerHTML = '';
-                    frames.forEach((frameSrc, index) => {
-                        createImagePromise(frameSrc).then(({ blob, index }) => {
+                    frames.forEach((frame, index) => {
+                        createImagePromise(frame).then(({ blob, index, width, height, type }) => {
                             const canvas = document.createElement('canvas');
                             const ctx = canvas.getContext('2d');
                             const img = new Image();
                             img.src = URL.createObjectURL(blob);
                             
                             img.onload = function () {
-                                canvas.width = 1080;
-                                canvas.height = 1920;
+                                canvas.width = width;
+                                canvas.height = height;
                                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                                 URL.revokeObjectURL(img.src);
-                                
+
+                                // Define as classes de canvas com base no tipo (story ou profile)
+                                canvas.className = type === 'story' ? 'story-canvas' : 'profile-canvas';
+
                                 const containerDiv = document.createElement('div');
                                 containerDiv.className = 'canvas-container';
 
@@ -140,7 +152,7 @@
                                 downloadBtn.onclick = function () {
                                     const link = document.createElement('a');
                                     link.href = canvas.toDataURL('image/jpeg');
-                                    link.download = `imagem_com_marca_dagua_${index + 1}_1080x1920.jpg`;
+                                    link.download = `imagem_com_marca_dagua_${index + 1}_${width}x${height}.jpg`;
                                     document.body.appendChild(link);
                                     link.click();
                                     document.body.removeChild(link);
@@ -165,12 +177,12 @@
             }
 
             const zip = new JSZip();
-            const imagePromises = frames.map((frameSrc) => createImagePromise(frameSrc));
+            const imagePromises = frames.map((frame) => createImagePromise(frame));
 
             const imageBlobs = await Promise.all(imagePromises);
 
-            imageBlobs.forEach(({ blob, index }) => {
-                zip.file(`imagem_com_marca_dagua_${index + 1}_1080x1920.jpg`, blob);
+            imageBlobs.forEach(({ blob, index, width, height }) => {
+                zip.file(`imagem_com_marca_dagua_${index + 1}_${width}x${height}.jpg`, blob);
             });
 
             zip.generateAsync({ type: 'blob' }).then((content) => {
