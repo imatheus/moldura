@@ -82,9 +82,10 @@
             align-items: flex-start;
             width: 100%;
             max-width: 700px;
-            gap: 20px;
             padding: 0 20px;
             box-sizing: border-box;
+            flex-wrap: wrap;
+            gap: 20px;
         }
 
         .canvas-container {
@@ -102,12 +103,6 @@
         canvas {
             border-radius: 40px;
             border: 1px solid #ccc;
-        }
-
-        .story-canvas {
-            margin-top: 20px;
-            width: 270px;
-            height: 480px;
         }
 
         .profile-canvas {
@@ -191,11 +186,6 @@
                 display: flex;
             }
 
-            .story-canvas {
-                width: 100%;
-                height: auto;
-            }
-
             .profile-canvas {
                 width: 100%;
                 height: auto;
@@ -223,12 +213,7 @@
 </head>
 <body>
     <header>
-        <!-- Coluna 1: Logo -->
         <img src="logo.webp" alt="Logo" class="logo">
-
-       
-
-        <!-- Coluna 3: Menu -->
         <nav>
             <ul id="menu">
                 <li><a href="https://zepretoguarapari.com.br/">Início</a></li>
@@ -237,13 +222,9 @@
                 <li><a href="https://zepretoguarapari.com.br/materiais">Materiais</a></li>
             </ul>
         </nav>
- <!-- Coluna 2: Ícone de menu hambúrguer -->
-
-        <!-- Coluna 4: Botão do WhatsApp -->
         <button class="whatsapp-btn">
             <i class="fa fa-whatsapp"></i> WhatsApp
         </button>
-
         <span class="menu-icon" onclick="toggleMenu()">&#9776;</span>
     </header>
 
@@ -252,10 +233,6 @@
 
     <div id="statusMessage"></div>
     <div id="container">
-        <div class="canvas-container">
-            <div class="section-title">Para Stories</div>
-            <!-- Os canvas e botões para stories serão adicionados aqui -->
-        </div>
         <div class="canvas-container">
             <div class="section-title">Para Perfil</div>
             <!-- Os canvas e botões para perfil serão adicionados aqui -->
@@ -273,8 +250,6 @@
         }
 
         const frames = [
-            { src: '/moldura1.png', width: 1080, height: 1920, type: 'story' },
-            { src: '/moldura2.png', width: 1080, height: 1920, type: 'story' },
             { src: '/moldura4.png', width: 320, height: 320, type: 'profile' },
             { src: '/moldura4.png', width: 320, height: 320, type: 'profile' }
         ];
@@ -295,19 +270,9 @@
                     canvas.height = frame.height;
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                    let scale;
-                    let x;
-                    let y;
-
-                    if (frame.type === 'profile') {
-                        scale = 0.9 * Math.max(canvas.width / image.width, canvas.height / image.height);
-                        x = (canvas.width / 2) - (image.width / 2) * scale;
-                        y = (canvas.height / 2) - (image.height / 2) * scale;
-                    } else {
-                        scale = Math.max(canvas.width / image.width, canvas.height / image.height);
-                        x = (canvas.width / 2) - (image.width / 2) * scale;
-                        y = (canvas.height / 2) - (image.height / 2) * scale;
-                    }
+                    let scale = 0.9 * Math.max(canvas.width / image.width, canvas.height / image.height);
+                    let x = (canvas.width / 2) - (image.width / 2) * scale;
+                    let y = (canvas.height / 2) - (image.height / 2) * scale;
 
                     ctx.drawImage(image, x, y, image.width * scale, image.height * scale);
                     ctx.drawImage(watermark, 0, 0, canvas.width, canvas.height);
@@ -344,90 +309,51 @@
         function renderPreviews() {
             container.innerHTML = `
                 <div class="canvas-container">
-                    <div class="section-title">Para Stories</div>
-                </div>
-                <div class="canvas-container">
                     <div class="section-title">Para Perfil</div>
                 </div>
             `;
 
-            images.forEach(image => {
+            const profileContainer = container.querySelector('.canvas-container');
+            
+            images.forEach((image, imageIndex) => {
                 frames.forEach((frame) => {
-                    createImagePromise(frame, image).then(({ blob, index, width, height, type }) => {
-                        const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
-                        const img = new Image();
-                        img.src = URL.createObjectURL(blob);
-
-                        img.onload = function () {
+                    if (frame.type === 'profile') {
+                        createImagePromise(frame, image).then(({ blob, width, height }) => {
+                            const canvas = document.createElement('canvas');
                             canvas.width = width;
                             canvas.height = height;
-                            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                            URL.revokeObjectURL(img.src);
+                            canvas.className = 'profile-canvas';
+                            const ctx = canvas.getContext('2d');
 
-                            canvas.className = type === 'story' ? 'story-canvas' : 'profile-canvas';
+                            const img = new Image();
+                            img.src = URL.createObjectURL(blob);
 
-                            const containerDiv = container.querySelector(type === 'story' ? '.canvas-container:nth-child(1)' : '.canvas-container:nth-child(2)');
-                            const canvasWrapper = document.createElement('div');
-                            canvasWrapper.appendChild(canvas);
+                            img.onload = function () {
+                                ctx.drawImage(img, 0, 0, width, height);
+                                URL.revokeObjectURL(img.src);
 
-                            const downloadBtn = document.createElement('button');
-                            downloadBtn.textContent = `Baixar Moldura`;
-                            downloadBtn.onclick = function () {
-                                const link = document.createElement('a');
-                                link.href = canvas.toDataURL('image/jpeg');
-                                link.download = `imagem_com_marca_dagua_${index + 1}_${width}x${height}.jpg`;
-                                document.body.appendChild(link);
-                                link.click();
-                                document.body.removeChild(link);
+                                const canvasWrapper = document.createElement('div');
+                                canvasWrapper.appendChild(canvas);
+
+                                const downloadBtn = document.createElement('button');
+                                downloadBtn.textContent = 'Baixar Imagem';
+                                downloadBtn.onclick = function () {
+                                    const link = document.createElement('a');
+                                    link.href = canvas.toDataURL('image/jpeg');
+                                    link.download = `imagem_perfil_${imageIndex + 1}_${width}x${height}.jpg`;
+                                    document.body.appendChild(link);
+                                    link.click();
+                                    document.body.removeChild(link);
+                                };
+
+                                canvasWrapper.appendChild(downloadBtn);
+                                profileContainer.appendChild(canvasWrapper);
                             };
-
-                            canvasWrapper.appendChild(downloadBtn);
-                            containerDiv.appendChild(canvasWrapper);
-                        };
-                    });
+                        });
+                    }
                 });
             });
         }
-
-        document.getElementById('generateAllImages').addEventListener('click', async function () {
-            if (!images.length) {
-                alert('Por favor, faça o upload de uma imagem primeiro.');
-                return;
-            }
-
-            statusMessage.textContent = 'Gerando imagens, por favor aguarde...';
-
-            const zip = new JSZip();
-            const imagePromises = [];
-
-            images.forEach(image => {
-                frames.forEach((frame) => {
-                    imagePromises.push(createImagePromise(frame, image));
-                });
-            });
-
-            try {
-                const imageBlobs = await Promise.all(imagePromises);
-
-                imageBlobs.forEach(({ blob, index, width, height }) => {
-                    zip.file(`imagem_com_marca_dagua_${index + 1}_${width}x${height}.jpg`, blob);
-                });
-
-                const content = await zip.generateAsync({ type: 'blob' });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(content);
-                link.download = 'imagens_com_marca_dagua.zip';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-
-                statusMessage.textContent = 'Imagens geradas e baixadas com sucesso!';
-            } catch (error) {
-                statusMessage.textContent = 'Ocorreu um erro ao gerar as imagens. Tente novamente.';
-                console.error(error);
-            }
-        });
     </script>
 </body>
 </html>
