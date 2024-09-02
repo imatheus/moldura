@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Adicionar Marca d'Água</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+            overflow-x: hidden;
+        }
+
+        #container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
+            max-width: 100%;
+            gap: 20px;
+        }
+
+        .canvas-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 100%;
+            max-width: 320px;
+        }
+
+        canvas {
+            border-radius: 40px;
+
+            border: 1px solid #ccc;
+            width: 270px;  /* Mantém a proporção de 1080x1920 para exibição */
+            height: 480px;
+        }
+
+        button {
+            background-color: rgb(73, 182, 255);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: rgb(50, 150, 220);
+        }
+
+        input[type="file"] {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Moldura do Zé</h1>
+    <input type="file" id="uploadImage" accept="image/*" />
+    <br />
+    <button id="generateAllImages">Gerar Imagens com Todos os Moldes</button>
+    <br />
+    <div id="container"></div>
+
+    <!-- Inclua a biblioteca JSZip -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+    <script>
+        const frames = [
+            '/moldura1.png',
+            '/moldura2.png',
+            '/moldura3.png'
+        ];
+
+        const container = document.getElementById('container');
+        let image = new Image();
+
+        function createImagePromise(frameSrc) {
+            return new Promise((resolve) => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const watermark = new Image();
+                watermark.src = frameSrc;
+                
+                watermark.onload = function () {
+                    canvas.width = 1080;
+                    canvas.height = 1920;
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                    // Mantém a imagem preenchendo completamente o canvas
+                    const scale = Math.max(canvas.width / image.width, canvas.height / image.height);
+                    const x = (canvas.width / 2) - (image.width / 2) * scale;
+                    const y = (canvas.height / 2) - (image.height / 2) * scale;
+
+                    ctx.drawImage(image, x, y, image.width * scale, image.height * scale);
+                    ctx.drawImage(watermark, 0, 0, canvas.width, canvas.height);
+
+                    canvas.toBlob((blob) => {
+                        resolve({ blob, index: frames.indexOf(frameSrc) });
+                    }, 'image/jpeg');
+                };
+            });
+        }
+
+        document.getElementById('uploadImage').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                image.onload = function () {
+                    container.innerHTML = '';
+                    frames.forEach((frameSrc, index) => {
+                        createImagePromise(frameSrc).then(({ blob, index }) => {
+                            const canvas = document.createElement('canvas');
+                            const ctx = canvas.getContext('2d');
+                            const img = new Image();
+                            img.src = URL.createObjectURL(blob);
+                            
+                            img.onload = function () {
+                                canvas.width = 1080;
+                                canvas.height = 1920;
+                                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                                URL.revokeObjectURL(img.src);
+                                
+                                const containerDiv = document.createElement('div');
+                                containerDiv.className = 'canvas-container';
+
+                                const downloadBtn = document.createElement('button');
+                                downloadBtn.textContent = `Baixar Moldura ${index + 1}`;
+                                downloadBtn.onclick = function () {
+                                    const link = document.createElement('a');
+                                    link.href = canvas.toDataURL('image/jpeg');
+                                    link.download = `imagem_com_marca_dagua_${index + 1}_1080x1920.jpg`;
+                                    document.body.appendChild(link);
+                                    link.click();
+                                    document.body.removeChild(link);
+                                };
+
+                                containerDiv.appendChild(canvas);
+                                containerDiv.appendChild(downloadBtn);
+                                container.appendChild(containerDiv);
+                            };
+                        });
+                    });
+                };
+                image.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        document.getElementById('generateAllImages').addEventListener('click', async function () {
+            if (!image.src) {
+                alert('Por favor, faça o upload de uma imagem primeiro.');
+                return;
+            }
+
+            const zip = new JSZip();
+            const imagePromises = frames.map((frameSrc) => createImagePromise(frameSrc));
+
+            const imageBlobs = await Promise.all(imagePromises);
+
+            imageBlobs.forEach(({ blob, index }) => {
+                zip.file(`imagem_com_marca_dagua_${index + 1}_1080x1920.jpg`, blob);
+            });
+
+            zip.generateAsync({ type: 'blob' }).then((content) => {
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(content);
+                link.download = 'imagens_com_marca_dagua.zip';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+        });
+    </script>
+</body>
+</html>
