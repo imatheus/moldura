@@ -3,36 +3,100 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Adicionar Marca d'Água</title>
+    <title>Moldura do Zé</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            height: 100vh;
             margin: 0;
             background-color: #f4f4f4;
             overflow-x: hidden;
         }
 
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 10px 20px;
+            box-sizing: border-box;
+            background-color: #0044a8;
+            border-bottom: 2px solid #ccc;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            width: 160px;
+        }
+
+        nav {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        nav ul li {
+            margin: 0 15px;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: #ffffff;
+            font-weight: 500;
+            font-size: 17px;
+        }
+
+        .whatsapp-btn {
+            display: flex;
+            align-items: center;
+            background: #96DC03;
+            color: #2B6C01;
+            padding: 10px 20px;
+            border-radius: 30px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .whatsapp-btn:hover {
+            background: linear-gradient(45deg, #128c7e, #25d366);
+        }
+
+        .whatsapp-btn i {
+            margin-right: 10px;
+            font-size: 20px;
+        }
+
         #container {
             display: flex;
-            flex-wrap: wrap;
             justify-content: center;
+            align-items: flex-start;
             width: 100%;
-            max-width: 100%;
+            max-width: 700px;
             gap: 20px;
+            padding: 0 20px;
+            box-sizing: border-box;
         }
 
         .canvas-container {
+            margin-bottom: 10%;
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
             width: 100%;
             max-width: 320px;
+            padding: 10px;
+            box-sizing: border-box;
         }
 
         canvas {
@@ -41,59 +105,185 @@
         }
 
         .story-canvas {
-            width: 270px;  /* Mantém a proporção de 1080x1920 para exibição */
+            margin-top: 20px;
+            width: 270px;
             height: 480px;
         }
 
         .profile-canvas {
-            border-radius: 1210px;
-            width: 160px;  /* Mantém a proporção de 320x320 para exibição */
+            margin-top: 20px;
+            border-radius: 540px;
+            width: 160px;
             height: 160px;
         }
 
-        button {
+        button, .upload-label {
             background-color: rgb(73, 182, 255);
             color: white;
             padding: 10px 20px;
             border-radius: 10px;
             border: none;
             cursor: pointer;
-            margin-top: 10px;
             font-size: 16px;
+            margin-top: 10px;
         }
 
-        button:hover {
+        button:hover, .upload-label:hover {
             background-color: rgb(50, 150, 220);
         }
 
         input[type="file"] {
+            display: none;
+        }
+
+        .upload-label {
+            display: inline-block;
             margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        /* Estilo para o menu hambúrguer */
+        .menu-icon {
+            margin-left: 10px;
+            display: none;
+            font-size: 28px;
+            color: #ffffff;
+            cursor: pointer;
+        }
+
+        /* Estilo do menu no mobile */
+        @media (max-width: 768px) {
+            .menu-icon {
+                display: block;
+            }
+
+            nav ul {
+                display: none;
+                flex-direction: column;
+                width: 100%;
+                background-color: #0044a8;
+                position: absolute;
+                top: 60px;
+                left: 0;
+                z-index: 1000;
+                border-top: 2px solid #ccc;
+            }
+
+            nav ul li {
+                margin: 10px 0;
+                text-align: center;
+            }
+
+            nav ul li a {
+                font-size: 20px;
+                padding: 10px 0;
+                display: block;
+                width: 100%;
+            }
+
+            nav ul.open {
+                display: flex;
+            }
+
+            .story-canvas {
+                width: 100%;
+                height: auto;
+            }
+
+            .profile-canvas {
+                width: 100%;
+                height: auto;
+            }
+
+            #container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .canvas-container {
+                max-width: 100%;
+            }
+
+            .whatsapp-btn {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+
+            .whatsapp-btn i {
+                font-size: 18px;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>Moldura do Zé</h1>
-    <input type="file" id="uploadImage" accept="image/*" />
-    <br />
-    <button id="generateAllImages">Gerar Imagens com Todos os Moldes</button>
-    <br />
-    <div id="container"></div>
+    <header>
+        <!-- Coluna 1: Logo -->
+        <img src="logo.webp" alt="Logo" class="logo">
+
+       
+
+        <!-- Coluna 3: Menu -->
+        <nav>
+            <ul id="menu">
+                <li><a href="https://zepretoguarapari.com.br/">Início</a></li>
+                <li><a href="https://zepretoguarapari.com.br/#propostas">Propostas</a></li>
+                <li><a href="https://zepretoguarapari.com.br/#news">Notícia</a></li>
+                <li><a href="https://zepretoguarapari.com.br/materiais">Materiais</a></li>
+            </ul>
+        </nav>
+ <!-- Coluna 2: Ícone de menu hambúrguer -->
+
+        <!-- Coluna 4: Botão do WhatsApp -->
+        <button class="whatsapp-btn">
+            <i class="fa fa-whatsapp"></i> WhatsApp
+        </button>
+
+        <span class="menu-icon" onclick="toggleMenu()">&#9776;</span>
+    </header>
+
+    <label for="uploadImage" class="upload-label">Importar foto da galeria</label>
+    <input type="file" id="uploadImage" accept="image/*" multiple />
+
+    <div id="statusMessage"></div>
+    <div id="container">
+        <div class="canvas-container">
+            <div class="section-title">Para Stories</div>
+            <!-- Os canvas e botões para stories serão adicionados aqui -->
+        </div>
+        <div class="canvas-container">
+            <div class="section-title">Para Perfil</div>
+            <!-- Os canvas e botões para perfil serão adicionados aqui -->
+        </div>
+    </div>
 
     <!-- Inclua a biblioteca JSZip -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-
+    <!-- Inclua a biblioteca de ícones Font Awesome -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <script>
+        function toggleMenu() {
+            const menu = document.getElementById('menu');
+            menu.classList.toggle('open');
+        }
+
         const frames = [
             { src: '/moldura1.png', width: 1080, height: 1920, type: 'story' },
             { src: '/moldura2.png', width: 1080, height: 1920, type: 'story' },
-            { src: '/moldura3.png', width: 1080, height: 1920, type: 'story' },
-            { src: '/moldura4.png', width: 320, height: 320, type: 'profile' } // Moldura 4 com resolução 320x320
+            { src: '/moldura4.png', width: 320, height: 320, type: 'profile' },
+            { src: '/moldura4.png', width: 320, height: 320, type: 'profile' }
         ];
 
         const container = document.getElementById('container');
-        let image = new Image();
+        const statusMessage = document.getElementById('statusMessage');
+        let images = [];
 
-        function createImagePromise(frame) {
+        function createImagePromise(frame, image) {
             return new Promise((resolve) => {
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
@@ -110,12 +300,10 @@
                     let y;
 
                     if (frame.type === 'profile') {
-                        // Aplica um zoom out para a moldura de perfil
                         scale = 0.9 * Math.max(canvas.width / image.width, canvas.height / image.height);
                         x = (canvas.width / 2) - (image.width / 2) * scale;
                         y = (canvas.height / 2) - (image.height / 2) * scale;
                     } else {
-                        // Para stories, mantém o ajuste padrão
                         scale = Math.max(canvas.width / image.width, canvas.height / image.height);
                         x = (canvas.width / 2) - (image.width / 2) * scale;
                         y = (canvas.height / 2) - (image.height / 2) * scale;
@@ -132,78 +320,113 @@
         }
 
         document.getElementById('uploadImage').addEventListener('change', function (event) {
-            const file = event.target.files[0];
-            if (!file) return;
+            const files = event.target.files;
+            if (!files.length) return;
 
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                image.onload = function () {
-                    container.innerHTML = '';
-                    frames.forEach((frame, index) => {
-                        createImagePromise(frame).then(({ blob, index, width, height, type }) => {
-                            const canvas = document.createElement('canvas');
-                            const ctx = canvas.getContext('2d');
-                            const img = new Image();
-                            img.src = URL.createObjectURL(blob);
-                            
-                            img.onload = function () {
-                                canvas.width = width;
-                                canvas.height = height;
-                                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                                URL.revokeObjectURL(img.src);
+            images = [];
+            for (let i = 0; i < files.length; i++) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    images.push(img);
 
-                                // Define as classes de canvas com base no tipo (story ou profile)
-                                canvas.className = type === 'story' ? 'story-canvas' : 'profile-canvas';
-
-                                const containerDiv = document.createElement('div');
-                                containerDiv.className = 'canvas-container';
-
-                                const downloadBtn = document.createElement('button');
-                                downloadBtn.textContent = `Baixar Moldura ${index + 1}`;
-                                downloadBtn.onclick = function () {
-                                    const link = document.createElement('a');
-                                    link.href = canvas.toDataURL('image/jpeg');
-                                    link.download = `imagem_com_marca_dagua_${index + 1}_${width}x${height}.jpg`;
-                                    document.body.appendChild(link);
-                                    link.click();
-                                    document.body.removeChild(link);
-                                };
-
-                                containerDiv.appendChild(canvas);
-                                containerDiv.appendChild(downloadBtn);
-                                container.appendChild(containerDiv);
-                            };
-                        });
-                    });
+                    img.onload = function () {
+                        if (images.length === files.length) {
+                            renderPreviews();
+                        }
+                    };
                 };
-                image.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
+                reader.readAsDataURL(files[i]);
+            }
         });
 
+        function renderPreviews() {
+            container.innerHTML = `
+                <div class="canvas-container">
+                    <div class="section-title">Para Stories</div>
+                </div>
+                <div class="canvas-container">
+                    <div class="section-title">Para Perfil</div>
+                </div>
+            `;
+
+            images.forEach(image => {
+                frames.forEach((frame) => {
+                    createImagePromise(frame, image).then(({ blob, index, width, height, type }) => {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        const img = new Image();
+                        img.src = URL.createObjectURL(blob);
+
+                        img.onload = function () {
+                            canvas.width = width;
+                            canvas.height = height;
+                            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                            URL.revokeObjectURL(img.src);
+
+                            canvas.className = type === 'story' ? 'story-canvas' : 'profile-canvas';
+
+                            const containerDiv = container.querySelector(type === 'story' ? '.canvas-container:nth-child(1)' : '.canvas-container:nth-child(2)');
+                            const canvasWrapper = document.createElement('div');
+                            canvasWrapper.appendChild(canvas);
+
+                            const downloadBtn = document.createElement('button');
+                            downloadBtn.textContent = `Baixar Moldura`;
+                            downloadBtn.onclick = function () {
+                                const link = document.createElement('a');
+                                link.href = canvas.toDataURL('image/jpeg');
+                                link.download = `imagem_com_marca_dagua_${index + 1}_${width}x${height}.jpg`;
+                                document.body.appendChild(link);
+                                link.click();
+                                document.body.removeChild(link);
+                            };
+
+                            canvasWrapper.appendChild(downloadBtn);
+                            containerDiv.appendChild(canvasWrapper);
+                        };
+                    });
+                });
+            });
+        }
+
         document.getElementById('generateAllImages').addEventListener('click', async function () {
-            if (!image.src) {
+            if (!images.length) {
                 alert('Por favor, faça o upload de uma imagem primeiro.');
                 return;
             }
 
+            statusMessage.textContent = 'Gerando imagens, por favor aguarde...';
+
             const zip = new JSZip();
-            const imagePromises = frames.map((frame) => createImagePromise(frame));
+            const imagePromises = [];
 
-            const imageBlobs = await Promise.all(imagePromises);
-
-            imageBlobs.forEach(({ blob, index, width, height }) => {
-                zip.file(`imagem_com_marca_dagua_${index + 1}_${width}x${height}.jpg`, blob);
+            images.forEach(image => {
+                frames.forEach((frame) => {
+                    imagePromises.push(createImagePromise(frame, image));
+                });
             });
 
-            zip.generateAsync({ type: 'blob' }).then((content) => {
+            try {
+                const imageBlobs = await Promise.all(imagePromises);
+
+                imageBlobs.forEach(({ blob, index, width, height }) => {
+                    zip.file(`imagem_com_marca_dagua_${index + 1}_${width}x${height}.jpg`, blob);
+                });
+
+                const content = await zip.generateAsync({ type: 'blob' });
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(content);
                 link.download = 'imagens_com_marca_dagua.zip';
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-            });
+
+                statusMessage.textContent = 'Imagens geradas e baixadas com sucesso!';
+            } catch (error) {
+                statusMessage.textContent = 'Ocorreu um erro ao gerar as imagens. Tente novamente.';
+                console.error(error);
+            }
         });
     </script>
 </body>
