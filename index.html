@@ -46,6 +46,7 @@
         }
 
         .profile-canvas {
+            border-radius: 1210px;
             width: 160px;  /* Mantém a proporção de 320x320 para exibição */
             height: 160px;
         }
@@ -110,7 +111,7 @@
 
                     if (frame.type === 'profile') {
                         // Aplica um zoom out para a moldura de perfil
-                        scale = 0.8 * Math.max(canvas.width / image.width, canvas.height / image.height);
+                        scale = 0.9 * Math.max(canvas.width / image.width, canvas.height / image.height);
                         x = (canvas.width / 2) - (image.width / 2) * scale;
                         y = (canvas.height / 2) - (image.height / 2) * scale;
                     } else {
